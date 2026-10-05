@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Offline Payment Reconciliation Simulator</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body data-page="{{ page }}">
+  <nav class="topbar">
+    <div class="brand"><span class="logo">&#8377;</span> Reconciliation Simulator</div>
+    <div class="links">
+      <a href="/" class="{{ 'active' if page == 'dashboard' }}">Dashboard</a>
+      <a href="/transactions" class="{{ 'active' if page == 'transactions' }}">Transactions</a>
+      <a href="/audit" class="{{ 'active' if page == 'audit' }}">Audit Log</a>
+    </div>
+    <span id="connBadge" class="conn online">&#9679; ONLINE</span>
+  </nav>
+  <main class="container">
+    {% if error %}<p class="card">{{ error }}</p>{% endif %}
+    {% block content %}{% endblock %}
+  </main>
+
+  <div id="modal" class="modal hidden">
+    <div class="modal-box">
+      <button class="modal-close" id="modalClose" aria-label="Close">&times;</button>
+      <div id="modalBody"></div>
+    </div>
+  </div>
+  <div id="toasts"></div>
+  <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>

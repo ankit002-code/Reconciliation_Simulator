@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Transactions</h1>
+<section class="card">
+  <div class="filters" id="filters">
+    {% for f in ['All','Offline','Pending','Reconciled','Duplicate','Conflict','Failed','Delayed'] %}
+    <button class="chip {{ 'active' if f == 'All' }}" data-filter="{{ f|upper }}">{{ f }}</button>
+    {% endfor %}
+    <input type="search" id="search" placeholder="Search ID or device...">
+  </div>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Transaction ID</th><th>Device</th><th class="num">Amount</th><th>Method</th><th>Created</th><th>Status</th><th>Retry</th></tr></thead>
+    <tbody id="txBody"><tr><td colspan="7" class="empty">Loading...</td></tr></tbody>
+  </table></div>
+</section>
+{% endblock %}

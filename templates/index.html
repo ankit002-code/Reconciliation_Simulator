@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+{% block content %}
+<header class="hero">
+  <h1>Offline Payment Reconciliation Simulator</h1>
+  <p>Simulate &bull; Synchronize &bull; Verify &bull; Reconcile</p>
+</header>
+
+<div id="offlineBanner" class="banner hidden">
+  &#9888; Payment system is currently offline.<br>Transactions will be stored locally and synchronized later.
+</div>
+
+<section class="card">
+  <div class="btn-row">
+    <button class="btn warn" id="btnOffline">Go Offline</button>
+    <button class="btn success" id="btnOnline">Restore Connection</button>
+    <button class="btn" id="btnGenerate">Generate Transaction</button>
+    <button class="btn" id="btnBatch">Generate 10 Transactions</button>
+    <button class="btn primary" id="btnSync">Synchronize</button>
+    <button class="btn primary" id="btnReconcile">Reconcile</button>
+    <button class="btn danger" id="btnReset">Reset Simulator</button>
+    <button class="btn dark" id="btnDemo">&#9654; Run Full Demo</button>
+  </div>
+  <div id="syncProgress" class="progress-wrap hidden">
+    <div id="syncText">Synchronizing...</div>
+    <div class="progress"><div id="syncBar"></div></div>
+  </div>
+</section>
+
+<section class="card pipeline" id="pipeline">
+  <div class="node"><b>&#128100;</b><span>Customer</span></div>
+  <div class="wire"><i></i><i></i><i></i></div>
+  <div class="node"><b>&#128179;</b><span>Payment Device</span><small id="queueCount">0 queued</small></div>
+  <div class="wire link"><i></i><i></i><i></i><em id="linkLabel">Connected</em></div>
+  <div class="node" id="serverNode"><b>&#127974;</b><span>Online Server</span><small id="syncedCount">0 synced</small></div>
+</section>
+
+<section class="stats" id="stats">
+  {% for key, label in [('total','Total Transactions'),('offline','Offline Transactions'),('pending','Pending (awaiting reconcile)'),('reconciled','Reconciled'),('duplicates','Duplicates'),('conflicts','Conflicts'),('failed','Failed'),('delayed','Delayed')] %}
+  <div class="stat s-{{ key }}"><span>{{ label }}</span><strong id="stat-{{ key }}">0</strong></div>
+  {% endfor %}
+</section>
+
+<div class="grid2">
+<section class="card raise-card">
+  <h2>&#9998; Raise a Transaction</h2>
+  <form id="raiseForm" class="raise" novalidate>
+    <label>Device<select id="fDevice">{% for d in ['POS-01','POS-02','POS-03','POS-04'] %}<option>{{ d }}</option>{% endfor %}</select></label>
+    <label>Amount (&#8377;)<input id="fAmount" type="number" min="1" max="100000" step="0.01" placeholder="e.g. 450" required></label>
+    <label>Payment Method<select id="fMethod">{% for m in ['UPI','CARD','IB','WALLET'] %}<option>{{ m }}</option>{% endfor %}</select></label>
+    <label>Scenario<select id="fType">
+      <option value="NORMAL">Normal</option><option value="DUPLICATE">Duplicate</option>
+      <option value="DELAYED">Delayed</option><option value="CONFLICT">Conflicting</option><option value="FAILED">Failed sync</option>
+    </select></label>
+    <label id="fDelayWrap" class="hidden">Delay (minutes)<input id="fDelay" type="number" min="1" max="1440" value="15"></label>
+    <label id="fServerWrap" class="hidden">Server amount (&#8377;)<input id="fServer" type="number" min="1" max="100000" step="0.01" placeholder="differs from amount"></label>
+    <button class="btn primary raise-btn" type="submit">Raise Transaction</button>
+  </form>
+  <p id="raiseHint" class="hint"></p>
+</section>
+<section class="card">
+  <h2>Quick Scenarios (random values)</h2>
+  <div class="btn-row">
+    <button class="btn" data-type="NORMAL">Normal Transaction</button>
+    <button class="btn" data-type="DUPLICATE">Duplicate Transaction</button>
+    <button class="btn" data-type="DELAYED">Delayed Transaction</button>
+    <button class="btn" data-type="CONFLICT">Conflicting Transaction</button>
+    <button class="btn" data-type="FAILED">Failed Transaction</button>
+  </div>
+</section>
+</div>
+
+<section class="card">
+  <h2>Status Distribution</h2>
+  <div class="chart">
+    <div class="donut-wrap">
+      <svg viewBox="0 0 42 42" class="donut" role="img" aria-label="Transaction status distribution">
+        <circle cx="21" cy="21" r="15.9155" fill="none" stroke="#e5e7eb" stroke-width="5"></circle>
+        <g id="donutSegs"></g>
+      </svg>
+      <div class="donut-center"><strong id="donutPct">0%</strong><span>reconciled</span></div>
+    </div>
+    <div id="legend" class="legend"></div>
+  </div>
+</section>
+
+<div class="grid2">
+  <section class="card">
+    <h2>Latest Transactions</h2>
+    <div class="table-wrap"><table>
+      <thead><tr><th>ID</th><th>Device</th><th class="num">Amount</th><th>Status</th><th>Retry</th></tr></thead>
+      <tbody id="recentBody"><tr><td colspan="5" class="empty">No transactions yet</td></tr></tbody>
+    </table></div>
+  </section>
+  <section class="card">
+    <h2>Live Activity Log</h2>
+    <div id="activityLog" class="log"><div class="muted">Waiting for activity...</div></div>
+  </section>
+</div>
+{% endblock %}
